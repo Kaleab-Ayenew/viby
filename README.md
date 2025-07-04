@@ -15,7 +15,7 @@ Vity is an AI-powered terminal assistant that helps you generate shell commands 
 
 ### One-Line Installation
 ```bash
-curl -LsSf https://raw.githubusercontent.com/yourusername/vity/main/install.sh | sh
+curl -LsSf https://raw.githubusercontent.com/kaleab-ayenew/vity/main/install.sh | sh
 ```
 
 ### Manual Installation
@@ -252,7 +252,7 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
 # Or reinstall
-curl -LsSf https://raw.githubusercontent.com/yourusername/vity/main/install.sh | sh
+curl -LsSf https://raw.githubusercontent.com/kaleab-ayenew/vity/main/install.sh | sh
 ```
 
 #### "Shell integration not working"
@@ -308,7 +308,7 @@ vity config --reset
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/vity.git
+git clone https://github.com/kaleab-ayenew/vity.git
 cd vity
 
 # Install in development mode
@@ -347,4 +347,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Need help?** Open an issue on [GitHub](https://github.com/yourusername/vity/issues) or run `vity help` for more details.
+**Need help?** Open an issue on [GitHub](https://github.com/kaleab-ayenew/vity/issues) or run `vity help` for more details.
