@@ -7,7 +7,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}🤖 Installing Viby - AI Terminal Assistant${NC}"
+echo -e "${GREEN}🤖 Installing Vity - AI Terminal Assistant${NC}"
 
 # Check if Python is available
 if ! command -v python3 &> /dev/null; then
@@ -32,20 +32,20 @@ if ! command -v pipx &> /dev/null; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Install viby
-echo -e "${YELLOW}📦 Installing viby...${NC}"
-pipx install viby
+# Install vity
+echo -e "${YELLOW}📦 Installing vity...${NC}"
+pipx install vity
 
 # Install shell integration
 echo -e "${YELLOW}🔧 Setting up shell integration...${NC}"
-viby install
+vity install
 
-echo -e "${GREEN}✅ Viby installed successfully!${NC}"
+echo -e "${GREEN}✅ Vity installed successfully!${NC}"
 echo ""
 echo "Next steps:"
 echo "1. Get an OpenAI API key: https://platform.openai.com/api-keys"
-echo "2. Run 'viby config' to set up your API key"
+echo "2. Run 'vity config' to set up your API key"
 echo "3. Start a new terminal or run 'source ~/.bashrc'"
-echo "4. Try: viby do 'find all python files'"
+echo "4. Try: vity do 'find all python files'"
 echo ""
-echo "For help: viby --help" 
+echo "For help: vity --help" 

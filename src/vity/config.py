@@ -8,7 +8,7 @@ class Config(BaseSettings):
     class Config:
         env_file = [
             ".env",
-            str(Path.home() / ".config" / "viby" / ".env"),
+            str(Path.home() / ".config" / "vity" / ".env"),
         ]
         env_file_encoding = "utf-8"
 

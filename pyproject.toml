@@ -3,13 +3,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "viby"
+name = "vity"
 version = "0.1.0"
 description = "AI-powered terminal assistant for generating shell commands"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "Kaleab Ayenew", email = "ai@enhance.care"},
 ]
 keywords = ["cli", "terminal", "ai", "assistant", "shell"]
 classifiers = [
@@ -47,19 +47,19 @@ dev = [
 ]
 
 [project.scripts]
-viby = "viby.cli:main"
+vity = "vity.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/kaleab-ayenew/viby"
-Repository = "https://github.com/kaleab-ayenew/viby"
-Documentation = "https://github.com/kaleab-ayenew/viby#readme"
-Issues = "https://github.com/kaleab-ayenew/viby/issues"
+Homepage = "https://github.com/kaleab-ayenew/vity"
+Repository = "https://github.com/kaleab-ayenew/vity"
+Documentation = "https://github.com/kaleab-ayenew/vity#readme"
+Issues = "https://github.com/kaleab-ayenew/vity/issues"
 
 [tool.hatch.version]
-path = "src/viby/__init__.py"
+path = "src/vity/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/viby"]
+packages = ["src/vity"]
 
 [tool.black]
 line-length = 88

@@ -1,6 +1,6 @@
-# 🤖 Viby - AI Terminal Assistant
+# 🤖 Vity - AI Terminal Assistant
 
-Viby is an AI-powered terminal assistant that helps you generate shell commands and get coding help directly from your terminal. Stop googling commands and start describing what you want to do!
+Vity is an AI-powered terminal assistant that helps you generate shell commands and get coding help directly from your terminal. Stop googling commands and start describing what you want to do!
 
 ## ✨ Features
 
@@ -15,7 +15,7 @@ Viby is an AI-powered terminal assistant that helps you generate shell commands 
 
 ### One-Line Installation
 ```bash
-curl -LsSf https://raw.githubusercontent.com/kaleab-ayenew/viby/main/install.sh | sh
+curl -LsSf https://raw.githubusercontent.com/yourusername/vity/main/install.sh | sh
 ```
 
 ### Manual Installation
@@ -23,13 +23,13 @@ If you prefer manual installation:
 
 ```bash
 # Install via pipx (recommended)
-pipx install viby
+pipx install vity
 
 # Or via pip
-pip install viby
+pip install vity
 
 # Install shell integration
-viby install
+vity install
 ```
 
 ## 📋 Requirements
@@ -46,12 +46,12 @@ viby install
 After installation, run the configuration command:
 
 ```bash
-viby config
+vity config
 ```
 
 This will:
 1. Prompt you for your OpenAI API key
-2. Save it securely to `~/.config/viby/.env`
+2. Save it securely to `~/.config/vity/.env`
 3. Verify the connection
 
 ### Manual Configuration
@@ -60,10 +60,10 @@ You can also set up the API key manually:
 
 ```bash
 # Create config directory
-mkdir -p ~/.config/viby
+mkdir -p ~/.config/vity
 
 # Add your API key
-echo "OPENAI_API_KEY=your_api_key_here" > ~/.config/viby/.env
+echo "OPENAI_API_KEY=your_api_key_here" > ~/.config/vity/.env
 ```
 
 ### Environment Variable
@@ -79,7 +79,7 @@ export OPENAI_API_KEY="your_api_key_here"
 To enable recording and enhanced features:
 
 ```bash
-viby install
+vity install
 source ~/.bashrc  # or restart your terminal
 ```
 
@@ -90,43 +90,43 @@ source ~/.bashrc  # or restart your terminal
 #### Generate Commands
 ```bash
 # File operations
-viby do "find all python files larger than 1MB"
-viby do "compress all images in this directory"
-viby do "delete files older than 30 days"
+vity do "find all python files larger than 1MB"
+vity do "compress all images in this directory"
+vity do "delete files older than 30 days"
 
 # System operations  
-viby do "show disk usage by directory"
-viby do "kill process using port 3000"
-viby do "create a backup of this folder"
+vity do "show disk usage by directory"
+vity do "kill process using port 3000"
+vity do "create a backup of this folder"
 
 # Git operations
-viby do "undo last commit but keep changes"
-viby do "create new branch from current state"
-viby do "show files changed in last commit"
+vity do "undo last commit but keep changes"
+vity do "create new branch from current state"
+vity do "show files changed in last commit"
 ```
 
 #### Chat with AI
 ```bash
 # Error explanations
-viby chat "what does 'permission denied' mean?"
-viby chat "explain this docker error message"
+vity chat "what does 'permission denied' mean?"
+vity chat "explain this docker error message"
 
 # Command explanations
-viby chat "what does 'chmod 755' do?"
-viby chat "difference between 'rm' and 'rm -rf'"
+vity chat "what does 'chmod 755' do?"
+vity chat "difference between 'rm' and 'rm -rf'"
 
 # Coding help
-viby chat "how to debug python import errors"
-viby chat "best practices for git branching"
+vity chat "how to debug python import errors"
+vity chat "best practices for git branching"
 ```
 
 ### Advanced Usage with Context Recording
 
-For the most powerful experience, use recording to give Viby context about your current work:
+For the most powerful experience, use recording to give Vity context about your current work:
 
 #### 1. Start Recording
 ```bash
-viby record
+vity record
 ```
 
 You'll see a 🔴 indicator in your prompt showing you're recording.
@@ -142,10 +142,10 @@ python app.py
 
 #### 3. Get Contextual Help
 ```bash
-# Viby sees the error and your project structure
-viby do "fix this python import error"
-viby chat "why did my script fail?"
-viby do "install missing dependencies"
+# Vity sees the error and your project structure
+vity do "fix this python import error"
+vity chat "why did my script fail?"
+vity do "install missing dependencies"
 ```
 
 #### 4. Stop Recording
@@ -157,13 +157,13 @@ exit  # Stops recording and returns to normal terminal
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `viby do "<task>"` | Generate a shell command | `viby do "find large files"` |
-| `viby chat "<question>"` | Ask AI a question | `viby chat "explain this error"` |
-| `viby record` | Start recording session | `viby record` |
-| `viby status` | Show recording status | `viby status` |
-| `viby config` | Manage configuration | `viby config --reset` |
-| `viby install` | Install shell integration | `viby install` |
-| `viby help` | Show detailed help | `viby help` |
+| `vity do "<task>"` | Generate a shell command | `vity do "find large files"` |
+| `vity chat "<question>"` | Ask AI a question | `vity chat "explain this error"` |
+| `vity record` | Start recording session | `vity record` |
+| `vity status` | Show recording status | `vity status` |
+| `vity config` | Manage configuration | `vity config --reset` |
+| `vity install` | Install shell integration | `vity install` |
+| `vity help` | Show detailed help | `vity help` |
 
 ## 📖 Examples
 
@@ -171,46 +171,46 @@ exit  # Stops recording and returns to normal terminal
 
 #### Scenario 1: Docker Troubleshooting
 ```bash
-viby record
+vity record
 docker build -t myapp .
 # Build fails with error...
 
-viby do "fix this docker build error"
+vity do "fix this docker build error"
 # Output: docker system prune -f && docker build --no-cache -t myapp .
 
-viby chat "why did the build fail?"
+vity chat "why did the build fail?"
 # Explains the error and suggests improvements
 ```
 
 #### Scenario 2: Git Workflow
 ```bash
-viby do "create feature branch for user authentication"
+vity do "create feature branch for user authentication"
 # Output: git checkout -b feature/user-authentication
 
-viby do "stage only python files"
+vity do "stage only python files"
 # Output: git add *.py
 
-viby chat "should I rebase or merge this feature branch?"
+vity chat "should I rebase or merge this feature branch?"
 # Explains the differences and best practices
 ```
 
 #### Scenario 3: System Administration
 ```bash
-viby record
+vity record
 df -h
 # Shows disk usage...
 
-viby do "find what's using the most disk space"
+vity do "find what's using the most disk space"
 # Output: du -sh */ | sort -rh | head -10
 
-viby do "safely clean up log files older than 7 days"
+vity do "safely clean up log files older than 7 days"
 # Output: find /var/log -name "*.log" -mtime +7 -exec rm {} \;
 ```
 
 ## 🔧 Configuration Options
 
 ### Config File Location
-- `~/.config/viby/.env` (primary)
+- `~/.config/vity/.env` (primary)
 - `.env` in current directory (fallback)
 
 ### Available Settings
@@ -219,18 +219,18 @@ viby do "safely clean up log files older than 7 days"
 OPENAI_API_KEY=your_api_key_here
 
 # Optional (set via environment)
-VIBY_MODEL=gpt-4.1-mini  # Default model
-VIBY_LOG_LEVEL=INFO      # Logging level
+VITY_MODEL=gpt-4.1-mini  # Default model
+VITY_LOG_LEVEL=INFO      # Logging level
 ```
 
 ### Shell Integration Features
 
-When you run `viby install`, it adds these features to your shell:
+When you run `vity install`, it adds these features to your shell:
 
 - **🔴 Recording Indicator**: Visual prompt when recording
-- **📁 Auto Log Management**: Logs stored in `~/.local/share/viby/logs/`
-- **⚡ Context Commands**: `viby do` and `viby chat` automatically use session context
-- **📊 Status Commands**: `viby status` shows current recording state
+- **📁 Auto Log Management**: Logs stored in `~/.local/share/vity/logs/`
+- **⚡ Context Commands**: `vity do` and `vity chat` automatically use session context
+- **📊 Status Commands**: `vity status` shows current recording state
 
 ## 🛠️ Troubleshooting
 
@@ -239,30 +239,30 @@ When you run `viby install`, it adds these features to your shell:
 #### "OpenAI API key not found"
 ```bash
 # Check configuration
-viby config
+vity config
 
 # Or set environment variable
 export OPENAI_API_KEY="your_key_here"
 ```
 
-#### "Command not found: viby"
+#### "Command not found: vity"
 ```bash
 # Ensure ~/.local/bin is in PATH
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
 # Or reinstall
-curl -LsSf https://raw.githubusercontent.com/kaleab-ayenew/viby/main/install.sh | sh
+curl -LsSf https://raw.githubusercontent.com/yourusername/vity/main/install.sh | sh
 ```
 
 #### "Shell integration not working"
 ```bash
 # Reinstall shell integration
-viby install
+vity install
 source ~/.bashrc
 
 # Check if functions are loaded
-type viby
+type vity
 ```
 
 #### "Recording not working"
@@ -281,25 +281,25 @@ sudo apt install util-linux
 
 Enable verbose logging:
 ```bash
-export VIBY_LOG_LEVEL=DEBUG
-viby do "test command"
+export VITY_LOG_LEVEL=DEBUG
+vity do "test command"
 ```
 
 ### Reset Configuration
 
 ```bash
 # Reset all settings
-viby config --reset
+vity config --reset
 
 # Remove shell integration
-# Edit ~/.bashrc and remove the "# Viby shell integration" section
+# Edit ~/.bashrc and remove the "# Vity shell integration" section
 ```
 
 ## 🔒 Privacy & Security
 
-- **API Key Storage**: Stored locally in `~/.config/viby/.env`
+- **API Key Storage**: Stored locally in `~/.config/vity/.env`
 - **Terminal History**: Only sent when using `-f` flag or during recording
-- **No Persistent Storage**: Viby doesn't store your commands or data
+- **No Persistent Storage**: Vity doesn't store your commands or data
 - **Local Processing**: All processing happens locally except OpenAI API calls
 
 ## 🤝 Contributing
@@ -308,8 +308,8 @@ viby config --reset
 
 ```bash
 # Clone repository
-git clone https://github.com/kaleab-ayenew/viby.git
-cd viby
+git clone https://github.com/yourusername/vity.git
+cd vity
 
 # Install in development mode
 pip install -e .
@@ -332,7 +332,7 @@ ruff src/
 python -m build
 
 # Install locally
-pip install dist/viby-*.whl
+pip install dist/vity-*.whl
 ```
 
 ## 📄 License
@@ -347,4 +347,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Need help?** Open an issue on [GitHub](https://github.com/kaleab-ayenew/viby/issues) or run `viby help` for more information.
+**Need help?** Open an issue on [GitHub](https://github.com/yourusername/vity/issues) or run `vity help` for more details.
