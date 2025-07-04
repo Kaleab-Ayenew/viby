@@ -18,7 +18,7 @@ def get_client():
         api_key = os.getenv('OPENAI_API_KEY')
     
     if not api_key:
-        raise ValueError("OpenAI API key not found. Please run 'viby config' to set it up.")
+        raise ValueError("OpenAI API key not found. Please run 'vity config' to set it up.")
     
     return OpenAI(api_key=api_key)
 
@@ -74,10 +74,10 @@ def generate_command(terminal_history: Optional[str], user_input: str) -> Comman
         store=True
     )
 
-    print("viby has generated a command. use the up arrow to run it.")
+    print("vity has generated a command. use the up arrow to run it.")
     print(response.output_parsed)
     return response.output_parsed
-    # cmd_string = f"{response.output_parsed.command} # {response.output_parsed.comment} * Viby generated command"
+    # cmd_string = f"{response.output_parsed.command} # {response.output_parsed.comment} * vity generated command"
 
 def generate_chat_response(terminal_history: Optional[str], user_input: str) -> str:
     client = get_client()

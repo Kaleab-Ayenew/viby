@@ -10,7 +10,7 @@ from llm import generate_command, generate_chat_response
 if __name__ == "__main__":
     # {{ Replace the hardcoded file loading and argument parsing with: }}
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Viby terminal assistant")
+    parser = argparse.ArgumentParser(description="vity terminal assistant")
     parser.add_argument(
         "-f", "--file", dest="history_file",
         help="Path to a terminal-session log file to prime the assistant"
@@ -35,14 +35,14 @@ if __name__ == "__main__":
                 terminal_history = f.read()
         except FileNotFoundError:
             sys.stderr.write(
-                f"[viby] Warning: history file '{args.history_file}' not found; "
+                f"[vity] Warning: history file '{args.history_file}' not found; "
                 "continuing without it.\n"
             )
 
-    print("viby is thinking...")
+    print("vity is thinking...")
     if args.interaction_mode == "do":
         command = generate_command(terminal_history, user_input)
-        cmd_string = f"{command.command} # {command.comment} * Viby generated command"
+        cmd_string = f"{command.command} # {command.comment} * vity generated command"
         # Append command to bash history file
         with open(os.path.expanduser("~/.bash_history"), "a") as f:
             f.write(cmd_string + "\n")

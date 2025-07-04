@@ -24,17 +24,99 @@ if [ "$(printf '%s\n' "$required_version" "$python_version" | sort -V | head -n1
     exit 1
 fi
 
+# Check if pip is available, install if not
+if ! python3 -m pip --version >/dev/null 2>&1; then
+    printf "${YELLOW}📦 Installing pip...${NC}\n"
+    if command -v apt >/dev/null 2>&1; then
+        sudo apt update
+        sudo apt install -y python3-pip
+    elif command -v yum >/dev/null 2>&1; then
+        sudo yum install -y python3-pip
+    elif command -v dnf >/dev/null 2>&1; then
+        sudo dnf install -y python3-pip
+    elif command -v pacman >/dev/null 2>&1; then
+        sudo pacman -S --noconfirm python-pip
+    else
+        printf "${RED}❌ Could not install pip automatically. Please install pip manually and try again.${NC}\n"
+        exit 1
+    fi
+fi
+
 # Install pipx if not available
 if ! command -v pipx >/dev/null 2>&1; then
     printf "${YELLOW}📦 Installing pipx...${NC}\n"
-    python3 -m pip install --user pipx
-    python3 -m pipx ensurepath
-    export PATH="$HOME/.local/bin:$PATH"
+    
+    # Try package manager first (recommended approach for externally managed environments)
+    if command -v apt >/dev/null 2>&1; then
+        if sudo apt update && sudo apt install -y pipx 2>/dev/null; then
+            printf "${GREEN}✅ pipx installed via apt${NC}\n"
+        else
+            printf "${YELLOW}⚠️  apt install failed, trying pip...${NC}\n"
+            install_pipx_via_pip
+        fi
+    elif command -v yum >/dev/null 2>&1; then
+        if sudo yum install -y pipx 2>/dev/null; then
+            printf "${GREEN}✅ pipx installed via yum${NC}\n"
+        else
+            install_pipx_via_pip
+        fi
+    elif command -v dnf >/dev/null 2>&1; then
+        if sudo dnf install -y pipx 2>/dev/null; then
+            printf "${GREEN}✅ pipx installed via dnf${NC}\n"
+        else
+            install_pipx_via_pip
+        fi
+    elif command -v pacman >/dev/null 2>&1; then
+        if sudo pacman -S --noconfirm python-pipx 2>/dev/null; then
+            printf "${GREEN}✅ pipx installed via pacman${NC}\n"
+        else
+            install_pipx_via_pip
+        fi
+    else
+        install_pipx_via_pip
+    fi
+    
+    # Ensure pipx is in PATH
+    if command -v pipx >/dev/null 2>&1; then
+        pipx ensurepath 2>/dev/null || true
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
 fi
+
+# Function to install pipx via pip with error handling
+install_pipx_via_pip() {
+    if python3 -m pip install --user pipx 2>/dev/null; then
+        printf "${GREEN}✅ pipx installed via pip${NC}\n"
+    else
+        # Handle externally managed environment error
+        printf "${YELLOW}⚠️  pip install failed (externally managed environment)${NC}\n"
+        printf "${YELLOW}Trying alternative methods...${NC}\n"
+        
+        # Try with --break-system-packages flag as last resort
+        if python3 -m pip install --user pipx --break-system-packages 2>/dev/null; then
+            printf "${GREEN}✅ pipx installed via pip (with --break-system-packages)${NC}\n"
+        else
+            printf "${RED}❌ Failed to install pipx automatically${NC}\n"
+            printf "${RED}Please install pipx manually:${NC}\n"
+            printf "  Ubuntu/Debian: sudo apt install pipx\n"
+            printf "  Or create a virtual environment and install there\n"
+            exit 1
+        fi
+    fi
+}
 
 # Install vity
 printf "${YELLOW}📦 Installing vity...${NC}\n"
 pipx install vity
+
+# Ensure PATH includes pipx binaries
+export PATH="$HOME/.local/bin:$PATH"
+
+# Make sure pipx path is set up
+pipx ensurepath >/dev/null 2>&1 || true
+
+# Reload shell configuration to pick up PATH changes
+source ~/.bashrc 2>/dev/null || true
 
 # Install shell integration
 printf "${YELLOW}🔧 Setting up shell integration...${NC}\n"

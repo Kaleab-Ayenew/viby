@@ -11,6 +11,7 @@ from typing import Optional
 from .config import config
 from .llm import generate_command, generate_chat_response
 from .schema import Command
+from . import __version__
 
 
 def setup_config() -> bool:
@@ -67,7 +68,7 @@ For shell integration, run: vity install
         help="Interaction mode (default: do)"
     )
     parser.add_argument(
-        "--version", action="version", version="%(prog)s 0.1.3"
+        "--version", action="version", version=f"%(prog)s {__version__}"
     )
     
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
