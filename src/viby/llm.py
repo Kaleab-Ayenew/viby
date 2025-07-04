@@ -1,12 +1,31 @@
 from openai import OpenAI
-from config import config
-from schema import Command
-import prompts
+from .config import config
+from .schema import Command
+from . import prompts
 from typing import Optional
-client = OpenAI(api_key=config.openai_api_key)
+import os
+
+def get_client():
+    """Get OpenAI client with proper error handling"""
+    api_key = None
+    
+    # Try to get API key from config first
+    if config and hasattr(config, 'openai_api_key'):
+        api_key = config.openai_api_key
+    
+    # Fallback to environment variable
+    if not api_key:
+        api_key = os.getenv('OPENAI_API_KEY')
+    
+    if not api_key:
+        raise ValueError("OpenAI API key not found. Please run 'viby config' to set it up.")
+    
+    return OpenAI(api_key=api_key)
 
 def generate_command(terminal_history: Optional[str], user_input: str) -> Command:
-# Build OpenAI message list dynamically
+    client = get_client()
+    
+    # Build OpenAI message list dynamically
     messages = [
             {
                 "role": "system",
@@ -61,6 +80,8 @@ def generate_command(terminal_history: Optional[str], user_input: str) -> Comman
     # cmd_string = f"{response.output_parsed.command} # {response.output_parsed.comment} * Viby generated command"
 
 def generate_chat_response(terminal_history: Optional[str], user_input: str) -> str:
+    client = get_client()
+    
     messages = [
             {
                 "role": "system",
