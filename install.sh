@@ -107,7 +107,17 @@ install_pipx_via_pip() {
 
 # Install vity
 printf "${YELLOW}📦 Installing vity...${NC}\n"
-pipx install vity
+
+# Check if vity is already installed
+if pipx list 2>/dev/null | grep -q "package vity"; then
+    printf "${YELLOW}🔄 Vity is already installed. Upgrading to latest version...${NC}\n"
+    pipx upgrade vity
+    VITY_ACTION="upgraded"
+else
+    printf "${YELLOW}🆕 Installing vity for the first time...${NC}\n"
+    pipx install vity
+    VITY_ACTION="installed"
+fi
 
 # Ensure PATH includes pipx binaries
 export PATH="$HOME/.local/bin:$PATH"
@@ -118,16 +128,31 @@ pipx ensurepath >/dev/null 2>&1 || true
 # Reload shell configuration to pick up PATH changes
 source ~/.bashrc 2>/dev/null || true
 
-# Install shell integration
+# Install or update shell integration
 printf "${YELLOW}🔧 Setting up shell integration...${NC}\n"
-vity install
+if [ "$VITY_ACTION" = "upgraded" ]; then
+    printf "${YELLOW}🔄 Updating shell integration to latest version...${NC}\n"
+    vity reinstall
+else
+    printf "${YELLOW}🆕 Installing shell integration...${NC}\n"
+    vity install
+fi
 
-printf "${GREEN}✅ Vity installed successfully!${NC}\n"
+printf "${GREEN}✅ Vity ${VITY_ACTION} successfully!${NC}\n"
 printf "\n"
-printf "Next steps:\n"
-printf "1. Get an OpenAI API key: https://platform.openai.com/api-keys\n"
-printf "2. Run 'vity config' to set up your API key\n"
-printf "3. Start a new terminal or run 'source ~/.bashrc'\n"
-printf "4. Try: vity do 'find all python files'\n"
+if [ "$VITY_ACTION" = "upgraded" ]; then
+    printf "${GREEN}🎉 Update complete!${NC}\n"
+    printf "• Vity package upgraded to latest version\n"
+    printf "• Shell integration updated with latest features\n"
+    printf "• Terminal title fix applied\n"
+    printf "\n"
+    printf "Changes take effect immediately!\n"
+else
+    printf "Next steps:\n"
+    printf "1. Get an OpenAI API key: https://platform.openai.com/api-keys\n"
+    printf "2. Run 'vity config' to set up your API key\n"
+    printf "3. Start a new terminal or run 'source ~/.bashrc'\n"
+    printf "4. Try: vity do 'find all python files'\n"
+fi
 printf "\n"
 printf "For help: vity --help\n"
