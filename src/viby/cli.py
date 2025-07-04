@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Vity CLI - AI-powered terminal assistant
+Viby CLI - AI-powered terminal assistant
 """
 import sys
 import os
@@ -15,11 +15,11 @@ from .schema import Command
 
 def setup_config() -> bool:
     """Setup configuration on first run"""
-    config_dir = Path.home() / ".config" / "vity"
+    config_dir = Path.home() / ".config" / "viby"
     config_file = config_dir / ".env"
     
     if not config_file.exists():
-        print("🤖 Welcome to Vity! Let's set up your OpenAI API key.")
+        print("🤖 Welcome to Viby! Let's set up your OpenAI API key.")
         print("You can get one at: https://platform.openai.com/api-keys")
         print()
         
@@ -44,15 +44,15 @@ def setup_config() -> bool:
 def main():
     """Main CLI entry point"""
     parser = argparse.ArgumentParser(
-        description="Vity - AI-powered terminal assistant",
+        description="Viby - AI-powered terminal assistant",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  vity do "find all python files"
-  vity chat "explain this error"
-  vity -f session.log do "fix the deployment issue"
+  viby do "find all python files"
+  viby chat "explain this error"
+  viby -f session.log do "fix the deployment issue"
   
-For shell integration, run: vity install
+For shell integration, run: viby install
         """
     )
     
@@ -122,7 +122,7 @@ For shell integration, run: vity install
             except FileNotFoundError:
                 print(f"⚠️  Warning: history file '{args.history_file}' not found")
         
-        print("🤖 Vity is thinking...")
+        print("🤖 Viby is thinking...")
         
         try:
             if args.command == "do":
@@ -134,7 +134,7 @@ For shell integration, run: vity install
                 history_file = Path.home() / ".bash_history"
                 if history_file.exists():
                     with open(history_file, "a") as f:
-                        f.write(f"{cmd_string} # Vity generated\n")
+                        f.write(f"{cmd_string} # Viby generated\n")
                 
             elif args.command == "chat":
                 response = generate_chat_response(terminal_history, user_input)
@@ -148,62 +148,62 @@ For shell integration, run: vity install
 def install_shell_integration():
     """Install shell integration"""
     script_content = '''
-# Vity shell integration
-vity() {
+# Viby shell integration
+viby() {
     if [[ "$1" == "record" ]]; then
         shift
-        log_dir="$HOME/.local/share/vity/logs"
+        log_dir="$HOME/.local/share/viby/logs"
         mkdir -p "$log_dir"
         logfile="$log_dir/$(date +%Y%m%d-%H%M%S)-$$.log"
         
-        export VITY_ACTIVE_LOG="$logfile"
-        export VITY_RECORDING="🔴"
-        export VITY_OLD_PS1="$PS1"
-        export PS1="$VITY_RECORDING $PS1"
-        echo -ne "\\033]0;🔴 RECORDING - Vity Session\\007"
+        export VIBY_ACTIVE_LOG="$logfile"
+        export VIBY_RECORDING="🔴"
+        export VIBY_OLD_PS1="$PS1"
+        export PS1="$VIBY_RECORDING $PS1"
+        echo -ne "\\033]0;🔴 RECORDING - Viby Session\\007"
         
         echo "🔴 Starting recording session"
-        echo "📝 Use 'vity do' or 'vity chat' for contextual help"
+        echo "📝 Use 'viby do' or 'viby chat' for contextual help"
         echo "🛑 Type 'exit' to stop recording"
         
         script -f "$logfile"
         
-        unset VITY_ACTIVE_LOG VITY_RECORDING VITY_OLD_PS1
-        export PS1="$VITY_OLD_PS1"
+        unset VIBY_ACTIVE_LOG VIBY_RECORDING VIBY_OLD_PS1
+        export PS1="$VIBY_OLD_PS1"
         echo -ne "\\033]0;Terminal\\007"
         echo "🟢 Recording session ended"
         
     elif [[ "$1" == "do" ]]; then
         shift
-        if [[ -n "$VITY_ACTIVE_LOG" && -f "$VITY_ACTIVE_LOG" ]]; then
-            command vity -f "$VITY_ACTIVE_LOG" do "$@"
+        if [[ -n "$VIBY_ACTIVE_LOG" && -f "$VIBY_ACTIVE_LOG" ]]; then
+            command viby -f "$VIBY_ACTIVE_LOG" do "$@"
         else
-            echo "⚠️  No active recording. Use 'vity record' for context."
-            command vity do "$@"
+            echo "⚠️  No active recording. Use 'viby record' for context."
+            command viby do "$@"
         fi
         
     elif [[ "$1" == "chat" ]]; then
         shift
-        if [[ -n "$VITY_ACTIVE_LOG" && -f "$VITY_ACTIVE_LOG" ]]; then
-            command vity -f "$VITY_ACTIVE_LOG" chat "$@"
+        if [[ -n "$VIBY_ACTIVE_LOG" && -f "$VIBY_ACTIVE_LOG" ]]; then
+            command viby -f "$VIBY_ACTIVE_LOG" chat "$@"
         else
-            echo "⚠️  No active recording. Use 'vity record' for context."
-            command vity chat "$@"
+            echo "⚠️  No active recording. Use 'viby record' for context."
+            command viby chat "$@"
         fi
         
     elif [[ "$1" == "status" ]]; then
-        if [[ -n "$VITY_ACTIVE_LOG" ]]; then
-            echo "🔴 Recording active: $VITY_ACTIVE_LOG"
+        if [[ -n "$VIBY_ACTIVE_LOG" ]]; then
+            echo "🔴 Recording active: $VIBY_ACTIVE_LOG"
         else
             echo "⚫ No active recording"
         fi
         
     elif [[ "$1" == "help" || "$1" == "-h" || "$1" == "--help" ]]; then
         cat << 'EOF'
-🤖 Vity - AI Terminal Assistant
+🤖 Viby - AI Terminal Assistant
 
 USAGE:
-    vity <command> [options] [prompt]
+    viby <command> [options] [prompt]
 
 COMMANDS:
     do <prompt>      Generate a shell command (adds to history)
@@ -213,14 +213,14 @@ COMMANDS:
     help             Show this help message
 
 EXAMPLES:
-    vity do "find all python files"
-    vity chat "explain this error message"
-    vity record
-    vity do "deploy the app"  # (with context from recording)
-    vity status
+    viby do "find all python files"
+    viby chat "explain this error message"
+    viby record
+    viby do "deploy the app"  # (with context from recording)
+    viby status
 
 CONTEXT:
-    • Use 'vity record' to start capturing session context
+    • Use 'viby record' to start capturing session context
     • Commands run during recording provide better AI responses
     • Recording indicator (🔴) shows in your prompt
     • Use 'exit' to stop recording
@@ -232,9 +232,9 @@ EOF
             echo "❌ Unknown command: $1"
             echo ""
         fi
-        echo "🤖 Vity - AI Terminal Assistant"
+        echo "🤖 Viby - AI Terminal Assistant"
         echo ""
-        echo "Usage: vity <command> [prompt]"
+        echo "Usage: viby <command> [prompt]"
         echo ""
         echo "Commands:"
         echo "  do <prompt>      Generate shell command"
@@ -243,7 +243,7 @@ EOF
         echo "  status           Show recording status"
         echo "  help             Show detailed help"
         echo ""
-        echo "Run 'vity help' for more details and examples."
+        echo "Run 'viby help' for more details and examples."
     fi
     
     history -n 2>/dev/null || true
@@ -253,7 +253,7 @@ EOF
     bashrc = Path.home() / ".bashrc"
     if bashrc.exists():
         content = bashrc.read_text()
-        if "# Vity shell integration" not in content:
+        if "# Viby shell integration" not in content:
             with open(bashrc, "a") as f:
                 f.write(f"\n{script_content}")
             print("✅ Shell integration installed!")
@@ -266,7 +266,7 @@ EOF
 
 def reset_config():
     """Reset configuration"""
-    config_dir = Path.home() / ".config" / "vity"
+    config_dir = Path.home() / ".config" / "viby"
     config_file = config_dir / ".env"
     
     if config_file.exists():
@@ -278,7 +278,7 @@ def reset_config():
 
 def show_config():
     """Show current configuration"""
-    config_dir = Path.home() / ".config" / "vity"
+    config_dir = Path.home() / ".config" / "viby"
     config_file = config_dir / ".env"
     
     if config_file.exists():
@@ -286,7 +286,7 @@ def show_config():
         print("🔑 API key configured")
     else:
         print("❌ No configuration found")
-        print("Run 'vity config' to set up")
+        print("Run 'viby config' to set up")
 
 
 if __name__ == "__main__":
