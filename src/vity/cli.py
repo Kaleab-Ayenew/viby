@@ -67,7 +67,7 @@ For shell integration, run: vity install
         help="Interaction mode (default: do)"
     )
     parser.add_argument(
-        "--version", action="version", version="%(prog)s 0.1.2"
+        "--version", action="version", version="%(prog)s 0.1.3"
     )
     
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
