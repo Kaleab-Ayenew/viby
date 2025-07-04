@@ -52,6 +52,8 @@ Examples:
   vity do "find all python files"
   vity chat "explain this error"
   vity -f session.log do "fix the deployment issue"
+  vity config --reset
+  vity reinstall
   
 For shell integration, run: vity install
         """
@@ -84,25 +86,33 @@ For shell integration, run: vity install
     # Install command
     install_parser = subparsers.add_parser("install", help="Install shell integration")
     
+    # Reinstall command
+    reinstall_parser = subparsers.add_parser("reinstall", help="Reinstall shell integration")
+    
     # Config command
     config_parser = subparsers.add_parser("config", help="Manage configuration")
     config_parser.add_argument("--reset", action="store_true", help="Reset configuration")
     
     args = parser.parse_args()
     
-    # Handle special commands first
+    # Handle special commands first (always available)
     if args.command == "install":
         install_shell_integration()
+        return
+    
+    if args.command == "reinstall":
+        reinstall_shell_integration()
         return
     
     if args.command == "config":
         if args.reset:
             reset_config()
+            return
         else:
             show_config()
-        return
+            return
     
-    # Setup config if needed
+    # Setup config if needed (for other commands)
     if not setup_config():
         sys.exit(1)
     
@@ -171,7 +181,7 @@ vity() {
         
         unset VITY_ACTIVE_LOG VITY_RECORDING VITY_OLD_PS1
         export PS1="$VITY_OLD_PS1"
-        echo -ne "\\033]0;Terminal\\007"
+        # Don't change terminal title on exit - let terminal use its default behavior
         echo "🟢 Recording session ended"
         
     elif [[ "$1" == "do" ]]; then
@@ -211,6 +221,10 @@ COMMANDS:
     chat <prompt>    Chat with AI about terminal/coding topics
     record           Start recording session for context
     status           Show current recording status
+    config           Show configuration
+    config --reset   Reset configuration (always available)
+    install          Install shell integration (always available)
+    reinstall        Reinstall shell integration (always available)
     help             Show this help message
 
 EXAMPLES:
@@ -219,6 +233,8 @@ EXAMPLES:
     vity record
     vity do "deploy the app"  # (with context from recording)
     vity status
+    vity config --reset
+    vity reinstall
 
 CONTEXT:
     • Use 'vity record' to start capturing session context
@@ -242,6 +258,10 @@ EOF
         echo "  chat <prompt>    Chat with AI"
         echo "  record           Start recording session"
         echo "  status           Show recording status"
+        echo "  config           Show configuration"
+        echo "  config --reset   Reset configuration"
+        echo "  install          Install shell integration"
+        echo "  reinstall        Reinstall shell integration"
         echo "  help             Show detailed help"
         echo ""
         echo "Run 'vity help' for more details and examples."
@@ -263,6 +283,45 @@ EOF
             print("✅ Shell integration already installed")
     else:
         print("❌ ~/.bashrc not found")
+
+
+def reinstall_shell_integration():
+    """Reinstall shell integration (remove existing and install fresh)"""
+    bashrc = Path.home() / ".bashrc"
+    
+    if not bashrc.exists():
+        print("❌ ~/.bashrc not found")
+        return
+    
+    print("🔄 Reinstalling shell integration...")
+    
+    # Read the current bashrc content
+    content = bashrc.read_text()
+    
+    # Find and remove existing vity shell integration
+    lines = content.split('\n')
+    new_lines = []
+    in_vity_section = False
+    
+    for line in lines:
+        if line.strip() == "# Vity shell integration":
+            in_vity_section = True
+            print("🗑️  Removing existing shell integration...")
+            continue
+        elif in_vity_section and line.strip() == "}":
+            in_vity_section = False
+            continue
+        elif not in_vity_section:
+            new_lines.append(line)
+    
+    # Write the cleaned content back
+    bashrc.write_text('\n'.join(new_lines))
+    
+    # Install fresh shell integration
+    print("✨ Installing fresh shell integration...")
+    install_shell_integration()
+    print("✅ Shell integration reinstalled successfully!")
+    print("Run 'source ~/.bashrc' or start a new terminal session")
 
 
 def reset_config():
