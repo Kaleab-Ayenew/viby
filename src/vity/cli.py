@@ -5,6 +5,7 @@ Vity CLI - AI-powered terminal assistant
 import sys
 import os
 import argparse
+import json
 from pathlib import Path
 from typing import Optional
 
@@ -52,6 +53,8 @@ Examples:
   vity do "find all python files"
   vity chat "explain this error"
   vity -f session.log do "fix the deployment issue"
+  vity -c chat.json chat "continue our conversation"
+  vity -f session.log -c chat.json do "help with this error"
   vity config --reset
   vity reinstall
   
@@ -62,6 +65,10 @@ For shell integration, run: vity install
     parser.add_argument(
         "-f", "--file", dest="history_file",
         help="Path to terminal session log file for context"
+    )
+    parser.add_argument(
+        "-c", "--chat", dest="chat_file",
+        help="Path to chat history file for conversation context"
     )
     parser.add_argument(
         "-m", "--mode", dest="interaction_mode",
@@ -133,23 +140,72 @@ For shell integration, run: vity install
             except FileNotFoundError:
                 print(f"⚠️  Warning: history file '{args.history_file}' not found")
         
+        # Load chat history if provided
+        chat_history = []
+        if args.chat_file:
+            try:
+                with open(args.chat_file, "r") as f:
+                    chat_history = json.load(f)
+            except FileNotFoundError:
+                # Create empty chat history file if it doesn't exist
+                chat_history = []
+            except json.JSONDecodeError:
+                print(f"⚠️  Warning: chat file '{args.chat_file}' contains invalid JSON, starting fresh")
+                chat_history = []
+        
         print("🤖 Vity is thinking...")
         
         try:
             if args.command == "do":
-                command = generate_command(terminal_history, user_input)
-                cmd_string = f"{command.command} # {command.comment}"
-                print(f"Command: {cmd_string}")
+                updated_chat_history = generate_command(terminal_history, chat_history, user_input)
                 
-                # Add to bash history
-                history_file = Path.home() / ".bash_history"
-                if history_file.exists():
-                    with open(history_file, "a") as f:
-                        f.write(f"{cmd_string} # Vity generated\n")
+                # Extract the command from the last assistant message
+                last_assistant_msg = None
+                for msg in reversed(updated_chat_history):
+                    if msg.get("role") == "assistant":
+                        last_assistant_msg = msg
+                        break
+                
+                if last_assistant_msg:
+                    # Extract command from assistant response
+                    content = last_assistant_msg.get("content", [{}])[0].get("text", "")
+                    if " # " in content:
+                        cmd_part = content.split(" # ")[0]
+                        comment_part = content.split(" # ")[1].replace(" * vity generated command", "")
+                        cmd_string = f"{cmd_part} # {comment_part}"
+                        print(f"Command: {cmd_string}")
+                        
+                        # Add to bash history
+                        history_file = Path.home() / ".bash_history"
+                        if history_file.exists():
+                            with open(history_file, "a") as f:
+                                f.write(f"{cmd_string} # Vity generated\n")
+                    else:
+                        print(f"Command: {content}")
+                
+                # Save updated chat history
+                if args.chat_file:
+                    with open(args.chat_file, "w") as f:
+                        json.dump(updated_chat_history, f, indent=2)
                 
             elif args.command == "chat":
-                response = generate_chat_response(terminal_history, user_input)
-                print(response)
+                updated_chat_history = generate_chat_response(terminal_history, chat_history, user_input)
+                
+                # Extract the response from the last assistant message
+                last_assistant_msg = None
+                for msg in reversed(updated_chat_history):
+                    if msg.get("role") == "assistant":
+                        last_assistant_msg = msg
+                        break
+                
+                if last_assistant_msg:
+                    content = last_assistant_msg.get("content", [{}])[0].get("text", "")
+                    print(content)
+                
+                # Save updated chat history
+                if args.chat_file:
+                    with open(args.chat_file, "w") as f:
+                        json.dump(updated_chat_history, f, indent=2)
                 
         except Exception as e:
             print(f"❌ Error: {e}")
@@ -164,10 +220,14 @@ vity() {
     if [[ "$1" == "record" ]]; then
         shift
         log_dir="$HOME/.local/share/vity/logs"
+        chat_dir="$HOME/.local/share/vity/chat"
         mkdir -p "$log_dir"
+        mkdir -p "$chat_dir"
         logfile="$log_dir/$(date +%Y%m%d-%H%M%S)-$$.log"
+        chatfile="$chat_dir/$(date +%Y%m%d-%H%M%S)-$$.json"
         
         export VITY_ACTIVE_LOG="$logfile"
+        export VITY_ACTIVE_CHAT="$chatfile"
         export VITY_RECORDING="🔴"
         export VITY_OLD_PS1="$PS1"
         export PS1="$VITY_RECORDING $PS1"
@@ -179,7 +239,7 @@ vity() {
         
         script -f "$logfile"
         
-        unset VITY_ACTIVE_LOG VITY_RECORDING VITY_OLD_PS1
+        unset VITY_ACTIVE_LOG VITY_ACTIVE_CHAT VITY_RECORDING VITY_OLD_PS1
         export PS1="$VITY_OLD_PS1"
         # Don't change terminal title on exit - let terminal use its default behavior
         echo "🟢 Recording session ended"
@@ -187,7 +247,7 @@ vity() {
     elif [[ "$1" == "do" ]]; then
         shift
         if [[ -n "$VITY_ACTIVE_LOG" && -f "$VITY_ACTIVE_LOG" ]]; then
-            command vity -f "$VITY_ACTIVE_LOG" do "$@"
+            command vity -f "$VITY_ACTIVE_LOG" -c "$VITY_ACTIVE_CHAT" do "$@"
         else
             echo "⚠️  No active recording. Use 'vity record' for context."
             command vity do "$@"
@@ -196,7 +256,7 @@ vity() {
     elif [[ "$1" == "chat" ]]; then
         shift
         if [[ -n "$VITY_ACTIVE_LOG" && -f "$VITY_ACTIVE_LOG" ]]; then
-            command vity -f "$VITY_ACTIVE_LOG" chat "$@"
+            command vity -f "$VITY_ACTIVE_LOG" -c "$VITY_ACTIVE_CHAT" chat "$@"
         else
             echo "⚠️  No active recording. Use 'vity record' for context."
             command vity chat "$@"
@@ -204,7 +264,9 @@ vity() {
         
     elif [[ "$1" == "status" ]]; then
         if [[ -n "$VITY_ACTIVE_LOG" ]]; then
-            echo "🔴 Recording active: $VITY_ACTIVE_LOG"
+            echo "🔴 Recording active:"
+            echo "  📝 Terminal log: $VITY_ACTIVE_LOG"
+            echo "  💬 Chat history: $VITY_ACTIVE_CHAT"
         else
             echo "⚫ No active recording"
         fi
@@ -239,6 +301,7 @@ EXAMPLES:
 CONTEXT:
     • Use 'vity record' to start capturing session context
     • Commands run during recording provide better AI responses
+    • Recording captures both terminal output and chat history
     • Recording indicator (🔴) shows in your prompt
     • Use 'exit' to stop recording
 EOF

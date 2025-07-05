@@ -22,8 +22,14 @@ def get_client():
     
     return OpenAI(api_key=api_key)
 
-def generate_command(terminal_history: Optional[str], user_input: str) -> Command:
+def generate_command(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> Command:
     client = get_client()
+
+    user_prompt = []
+    if terminal_history:
+        user_prompt.append(f"<terminal_history>{terminal_history}</terminal_history>")
+    user_prompt.append(f"<user_request>{user_input}</user_request>")
+    
     
     # Build OpenAI message list dynamically
     messages = [
@@ -39,18 +45,8 @@ def generate_command(terminal_history: Optional[str], user_input: str) -> Comman
         ]
 
     # Only add terminal history if we have it
-    if terminal_history:
-        messages.append(
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": f"<terminal_history>{terminal_history}</terminal_history>"
-                    }
-                ]
-            }
-        )
+    if chat_history:
+        messages.extend(chat_history)
 
     # Always add the user's query
     messages.append(
@@ -59,7 +55,7 @@ def generate_command(terminal_history: Optional[str], user_input: str) -> Comman
             "content": [
                 {
                     "type": "input_text",
-                    "text": user_input
+                    "text": "\n\n".join(user_prompt)
                 }
             ]
         }
@@ -74,12 +70,22 @@ def generate_command(terminal_history: Optional[str], user_input: str) -> Comman
         store=True
     )
 
-    print("vity has generated a command. use the up arrow to run it.")
-    print(response.output_parsed)
-    return response.output_parsed
-    # cmd_string = f"{response.output_parsed.command} # {response.output_parsed.comment} * vity generated command"
 
-def generate_chat_response(terminal_history: Optional[str], user_input: str) -> str:
+    messages.append(
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "output_text",
+                    "text": f"{response.output_parsed.command} # {response.output_parsed.comment} * vity generated command"
+                }
+            ]
+        }
+    )
+
+    return messages[1:]
+
+def generate_chat_response(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> str:
     client = get_client()
     
     messages = [
@@ -93,20 +99,15 @@ def generate_chat_response(terminal_history: Optional[str], user_input: str) -> 
                 ]
             }
         ]
+    
+    user_prompt = []
+    if terminal_history:
+        user_prompt.append(f"<terminal_history>{terminal_history}</terminal_history>")
+    user_prompt.append(f"<user_request>{user_input}</user_request>")
 
     # Only add terminal history if we have it
-    if terminal_history:
-        messages.append(
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": f"<terminal_history>{terminal_history}</terminal_history>"
-                    }
-                ]
-            }
-        )
+    if chat_history:
+        messages.extend(chat_history)
 
     # Always add the user's query
     messages.append(
@@ -115,7 +116,7 @@ def generate_chat_response(terminal_history: Optional[str], user_input: str) -> 
             "content": [
                 {
                     "type": "input_text",
-                    "text": user_input
+                    "text": "\n\n".join(user_prompt)
                 }
             ]
         }
@@ -127,6 +128,17 @@ def generate_chat_response(terminal_history: Optional[str], user_input: str) -> 
         temperature=0,
         max_output_tokens=2048,
         top_p=1,
-        store=True
     )
-    return response.output_text
+    messages.append(
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "output_text",
+                    "text": response.output_text
+                }
+            ]
+        }
+    )
+
+    return messages[1:]

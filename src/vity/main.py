@@ -16,6 +16,10 @@ if __name__ == "__main__":
         help="Path to a terminal-session log file to prime the assistant"
     )
     parser.add_argument(
+        "-c", "--chat", dest="chat_file",
+        help="Path to a chat file to prime the assistant"
+    )
+    parser.add_argument(
         "-m", "--mode", dest="interaction_mode",
         help="Mode of interaction with the assistant",
         choices=["chat", "do"],
@@ -26,6 +30,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     user_input = " ".join(args.prompt).strip()
+
+    chat_history = []
+    if args.chat_file:
+        try:
+            with open(args.chat_file, "r") as f:
+                chat_history = json.load(f)
+        except FileNotFoundError:
+            sys.stderr.write(
+                f"[vity] Warning: chat file '{args.chat_file}' not found; "
+                "continuing without it.\n"
+            )
 
     # Load terminal history if requested
     terminal_history = ""
@@ -41,11 +56,11 @@ if __name__ == "__main__":
 
     print("vity is thinking...")
     if args.interaction_mode == "do":
-        command = generate_command(terminal_history, user_input)
+        command = generate_command(terminal_history, chat_history, user_input)
         cmd_string = f"{command.command} # {command.comment} * vity generated command"
         # Append command to bash history file
         with open(os.path.expanduser("~/.bash_history"), "a") as f:
             f.write(cmd_string + "\n")
     elif args.interaction_mode == "chat":
-        response = generate_chat_response(terminal_history, user_input)
+        response = generate_chat_response(terminal_history, chat_history, user_input)
         print(response)

@@ -79,8 +79,8 @@ if ! command -v pipx >/dev/null 2>&1; then
     # Ensure pipx is in PATH
     if command -v pipx >/dev/null 2>&1; then
         pipx ensurepath 2>/dev/null || true
-        export PATH="$HOME/.local/bin:$PATH"
-    fi
+    export PATH="$HOME/.local/bin:$PATH"
+fi
 fi
 
 # Function to install pipx via pip with error handling
@@ -115,7 +115,7 @@ if pipx list 2>/dev/null | grep -q "package vity"; then
     VITY_ACTION="upgraded"
 else
     printf "${YELLOW}🆕 Installing vity for the first time...${NC}\n"
-    pipx install vity
+pipx install vity
     VITY_ACTION="installed"
 fi
 
@@ -135,7 +135,7 @@ if [ "$VITY_ACTION" = "upgraded" ]; then
     vity reinstall
 else
     printf "${YELLOW}🆕 Installing shell integration...${NC}\n"
-    vity install
+vity install
 fi
 
 printf "${GREEN}✅ Vity ${VITY_ACTION} successfully!${NC}\n"
@@ -148,11 +148,11 @@ if [ "$VITY_ACTION" = "upgraded" ]; then
     printf "\n"
     printf "Changes take effect immediately!\n"
 else
-    printf "Next steps:\n"
-    printf "1. Get an OpenAI API key: https://platform.openai.com/api-keys\n"
-    printf "2. Run 'vity config' to set up your API key\n"
-    printf "3. Start a new terminal or run 'source ~/.bashrc'\n"
-    printf "4. Try: vity do 'find all python files'\n"
+printf "Next steps:\n"
+printf "1. Get an OpenAI API key: https://platform.openai.com/api-keys\n"
+printf "2. Run 'vity config' to set up your API key\n"
+printf "3. Start a new terminal or run 'source ~/.bashrc'\n"
+printf "4. Try: vity do 'find all python files'\n"
 fi
 printf "\n"
 printf "For help: vity --help\n"
