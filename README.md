@@ -1,4 +1,4 @@
-![demo_video](https://github-production-user-asset-6210df.s3.amazonaws.com/119035751/462809858-0aee5cdd-7f26-4fe5-9d1d-1da04eb4e0df.webm)
+![demo_video](https://github.com/Kaleab-Ayenew/demo_vids/blob/main/Screencast%20from%2007-05-2025%2008_09_18%20PM%20(online-video-cutter.com).gif?raw=true)
 # 🤖 Vity - AI Terminal Assistant
 
 Vity is an AI-powered terminal assistant that helps you generate shell commands and get coding help directly from your terminal. Stop googling commands and start describing what you want to do!
