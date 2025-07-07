@@ -39,7 +39,11 @@ def setup_config() -> bool:
         
         # Set environment variable for this session
         os.environ["OPENAI_API_KEY"] = api_key
-        
+    else:
+        print("✅ Configuration already exists")
+        print(f"Config file: {config_file}")
+        print("Run 'vity config --reset' to reset the configuration")
+
     return True
 
 
@@ -99,6 +103,7 @@ For shell integration, run: vity install
     # Config command
     config_parser = subparsers.add_parser("config", help="Manage configuration")
     config_parser.add_argument("--reset", action="store_true", help="Reset configuration")
+    config_parser.add_argument("--show", action="store_true", help="Show configuration")
     
     args = parser.parse_args()
     
@@ -115,8 +120,11 @@ For shell integration, run: vity install
         if args.reset:
             reset_config()
             return
-        else:
+        elif args.show:
             show_config()
+            return
+        else:
+            setup_config()
             return
     
     # Setup config if needed (for other commands)
