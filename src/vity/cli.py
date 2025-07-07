@@ -15,6 +15,12 @@ from .schema import Command
 from . import __version__
 
 
+def check_config() -> bool:
+    """Check if configuration exists"""
+    config_dir = Path.home() / ".config" / "vity"
+    config_file = config_dir / ".env"
+    return config_file.exists()
+
 def setup_config() -> bool:
     """Setup configuration on first run"""
     config_dir = Path.home() / ".config" / "vity"
@@ -44,7 +50,7 @@ def setup_config() -> bool:
         print(f"Config file: {config_file}")
         print("Run 'vity config --reset' to reset the configuration")
 
-    return True
+
 
 
 def main():
@@ -128,8 +134,8 @@ For shell integration, run: vity install
             return
     
     # Setup config if needed (for other commands)
-    if not setup_config():
-        sys.exit(1)
+    if not check_config():
+        setup_config()
     
     # Handle main commands
     if not args.command:
