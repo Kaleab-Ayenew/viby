@@ -1,4 +1,6 @@
 from openai import OpenAI
+from baml_client.sync_client import b
+from baml_client.types import Command as BamlCommand
 from .config import config
 from .schema import Command
 from . import prompts
@@ -30,6 +32,38 @@ def get_client():
         raise ValueError("OpenAI API key not found. Please run 'vity config' to set it up.")
     
     return OpenAI(api_key=api_key)
+
+def generate_with_local_llm(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> list:
+    messages = []
+    if chat_history:
+        messages.extend(chat_history)
+    messages.append(
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "input_text",
+                    "text": f"{user_input}"
+                }
+            ]
+        }
+    )
+    
+
+    response = b.GenerateCommand(terminal_history, user_input)
+
+    messages.append(
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "output_text",
+                    "text": f"{response.command}"
+                }
+            ]
+        }
+    )
+    return messages
 
 def generate_command(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> list:
     client = get_client()

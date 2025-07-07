@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Optional
 
 from .config import config
-from .llm import generate_command, generate_chat_response, remove_terminal_history_tags
+from .llm import generate_command, generate_chat_response, remove_terminal_history_tags, generate_with_local_llm
 from .schema import Command
 from . import __version__
 
@@ -165,7 +165,7 @@ For shell integration, run: vity install
         
         try:
             if args.command == "do":
-                updated_chat_history = generate_command(terminal_history, chat_history, user_input)
+                updated_chat_history = generate_with_local_llm(terminal_history, chat_history, user_input)
 
                 for message in reversed(updated_chat_history):
                     if message["role"] == "user":
@@ -186,15 +186,16 @@ For shell integration, run: vity install
                         cmd_part = content.split(" # ")[0]
                         comment_part = content.split(" # ")[1].replace(" * vity generated command", "")
                         cmd_string = f"{cmd_part} # {comment_part}"
-                        print(f"Command: {cmd_string}")
-                        
-                        # Add to bash history
-                        history_file = Path.home() / ".bash_history"
-                        if history_file.exists():
-                            with open(history_file, "a") as f:
-                                f.write(f"{cmd_string} # Vity generated\n")
                     else:
-                        print(f"Command: {content}")
+                        cmd_string = content
+                    print(f"Command: {cmd_string}")
+                    
+                    # Add to bash history
+                    history_file = Path.home() / ".bash_history"
+                    if history_file.exists():
+                        with open(history_file, "a") as f:
+                            f.write(f"{cmd_string} # Vity generated\n")
+
                 
                 # Save updated chat history
                 if args.chat_file:
