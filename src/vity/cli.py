@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Optional
 
 from .config import config
-from .llm import generate_command, generate_chat_response
+from .llm import generate_command, generate_chat_response, remove_terminal_history_tags
 from .schema import Command
 from . import __version__
 
@@ -158,7 +158,12 @@ For shell integration, run: vity install
         try:
             if args.command == "do":
                 updated_chat_history = generate_command(terminal_history, chat_history, user_input)
-                
+
+                for message in reversed(updated_chat_history):
+                    if message["role"] == "user":
+                        message["content"][0]["text"] = remove_terminal_history_tags(message["content"][0]["text"]) 
+                        break
+
                 # Extract the command from the last assistant message
                 last_assistant_msg = None
                 for msg in reversed(updated_chat_history):
@@ -190,7 +195,12 @@ For shell integration, run: vity install
                 
             elif args.command == "chat":
                 updated_chat_history = generate_chat_response(terminal_history, chat_history, user_input)
-                
+
+                for message in reversed(updated_chat_history):
+                    if message["role"] == "user":
+                        message["content"][0]["text"] = remove_terminal_history_tags(message["content"][0]["text"]) 
+                        break
+
                 # Extract the response from the last assistant message
                 last_assistant_msg = None
                 for msg in reversed(updated_chat_history):
@@ -228,20 +238,13 @@ vity() {
         
         export VITY_ACTIVE_LOG="$logfile"
         export VITY_ACTIVE_CHAT="$chatfile"
-        export VITY_RECORDING="🔴"
-        export VITY_OLD_PS1="$PS1"
-        export PS1="$VITY_RECORDING $PS1"
-        echo -ne "\\033]0;🔴 RECORDING - Vity Session\\007"
-        
         echo "🔴 Starting recording session"
         echo "📝 Use 'vity do' or 'vity chat' for contextual help"
         echo "🛑 Type 'exit' to stop recording"
         
         script -f "$logfile"
         
-        unset VITY_ACTIVE_LOG VITY_ACTIVE_CHAT VITY_RECORDING VITY_OLD_PS1
-        export PS1="$VITY_OLD_PS1"
-        # Don't change terminal title on exit - let terminal use its default behavior
+        unset VITY_ACTIVE_LOG VITY_ACTIVE_CHAT
         echo "🟢 Recording session ended"
         
     elif [[ "$1" == "do" ]]; then
@@ -270,6 +273,11 @@ vity() {
         else
             echo "⚫ No active recording"
         fi
+        
+    # Forward commands that should be handled directly by the Python CLI
+    elif [[ "$1" == "install" || "$1" == "reinstall" || "$1" == "config" ]]; then
+        # Call the underlying vity executable with the provided arguments unchanged
+        command vity "$@"
         
     elif [[ "$1" == "help" || "$1" == "-h" || "$1" == "--help" ]]; then
         cat << 'EOF'
@@ -383,8 +391,7 @@ def reinstall_shell_integration():
     # Install fresh shell integration
     print("✨ Installing fresh shell integration...")
     install_shell_integration()
-    print("✅ Shell integration reinstalled successfully!")
-    print("Run 'source ~/.bashrc' or start a new terminal session")
+
 
 
 def reset_config():

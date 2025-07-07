@@ -4,6 +4,15 @@ from .schema import Command
 from . import prompts
 from typing import Optional
 import os
+import re
+
+def remove_terminal_history_tags(text: str) -> str:
+    """
+    Removes anything included inside <terminal_history>...</terminal_history> tags in the given text,
+    including the tags themselves.
+    """
+    return re.sub(r"<terminal_history>.*?</terminal_history>", "", text, flags=re.DOTALL)
+
 
 def get_client():
     """Get OpenAI client with proper error handling"""
@@ -22,7 +31,7 @@ def get_client():
     
     return OpenAI(api_key=api_key)
 
-def generate_command(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> Command:
+def generate_command(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> list:
     client = get_client()
 
     user_prompt = []
@@ -83,9 +92,10 @@ def generate_command(terminal_history: Optional[str], chat_history: Optional[lis
         }
     )
 
+
     return messages[1:]
 
-def generate_chat_response(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> str:
+def generate_chat_response(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> list:
     client = get_client()
     
     messages = [
@@ -140,5 +150,6 @@ def generate_chat_response(terminal_history: Optional[str], chat_history: Option
             ]
         }
     )
+
 
     return messages[1:]
