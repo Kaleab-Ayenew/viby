@@ -1,0 +1,14 @@
+name: PyPI Stats
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Daily
+  workflow_dispatch:
+
+jobs:
+  update_stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mikeckennedy/github-action-pypi-stats@v1
+        with:
+          package-name: "vity"
+          readme-file: "README.md"
