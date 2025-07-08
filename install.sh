@@ -151,10 +151,10 @@ if [ "$VITY_ACTION" = "upgraded" ]; then
     printf "Changes take effect immediately!\n"
 else
 printf "Next steps:\n"
+printf "[IMPORTANT] RESTART YOUR TERMINAL FIRST TO APPLY CHANGES! [IMPORTANT]\n"
 printf "1. Get an OpenAI API key: https://platform.openai.com/api-keys\n"
 printf "2. Run 'vity config' to set up your API key\n"
-printf "3. Start a new terminal or run 'source ~/.bashrc'\n"
-printf "4. Try: vity do 'find all python files'\n"
+printf "3. Try: vity do 'find all python files'\n"
 fi
 printf "\n"
 printf "For help: vity --help\n"
