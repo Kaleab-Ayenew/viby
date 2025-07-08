@@ -83,6 +83,14 @@ if ! command -v pipx >/dev/null 2>&1; then
 fi
 fi
 
+# Ensure pipx is in PATH for this session and future sessions
+export PATH="$HOME/.local/bin:$PATH"
+
+# Set up pipx path in shell config files - don't silence this!
+printf "${YELLOW}🔧 Setting up pipx PATH...${NC}\n"
+pipx ensurepath
+
+
 # Function to install pipx via pip with error handling
 install_pipx_via_pip() {
     if python3 -m pip install --user pipx 2>/dev/null; then
@@ -118,12 +126,6 @@ else
 pipx install vity
     VITY_ACTION="installed"
 fi
-
-# Ensure PATH includes pipx binaries
-export PATH="$HOME/.local/bin:$PATH"
-
-# Make sure pipx path is set up
-pipx ensurepath >/dev/null 2>&1 || true
 
 # Reload shell configuration to pick up PATH changes
 source ~/.bashrc 2>/dev/null || true
