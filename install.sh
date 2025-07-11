@@ -83,6 +83,14 @@ if ! command -v pipx >/dev/null 2>&1; then
 fi
 fi
 
+# Ensure pipx is in PATH for this session and future sessions
+export PATH="$HOME/.local/bin:$PATH"
+
+# Set up pipx path in shell config files - don't silence this!
+printf "${YELLOW}🔧 Setting up pipx PATH...${NC}\n"
+pipx ensurepath
+
+
 # Function to install pipx via pip with error handling
 install_pipx_via_pip() {
     if python3 -m pip install --user pipx 2>/dev/null; then
@@ -119,12 +127,6 @@ pipx install vity
     VITY_ACTION="installed"
 fi
 
-# Ensure PATH includes pipx binaries
-export PATH="$HOME/.local/bin:$PATH"
-
-# Make sure pipx path is set up
-pipx ensurepath >/dev/null 2>&1 || true
-
 # Reload shell configuration to pick up PATH changes
 source ~/.bashrc 2>/dev/null || true
 
@@ -149,10 +151,10 @@ if [ "$VITY_ACTION" = "upgraded" ]; then
     printf "Changes take effect immediately!\n"
 else
 printf "Next steps:\n"
+printf "[IMPORTANT] RESTART YOUR TERMINAL FIRST TO APPLY CHANGES! [IMPORTANT]\n"
 printf "1. Get an OpenAI API key: https://platform.openai.com/api-keys\n"
 printf "2. Run 'vity config' to set up your API key\n"
-printf "3. Start a new terminal or run 'source ~/.bashrc'\n"
-printf "4. Try: vity do 'find all python files'\n"
+printf "3. Try: vity do 'find all python files'\n"
 fi
 printf "\n"
 printf "For help: vity --help\n"
