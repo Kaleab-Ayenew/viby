@@ -23,8 +23,11 @@ class StreamState(BaseModel, typing.Generic[StreamStateValueT]):
     value: StreamStateValueT
     state: typing_extensions.Literal["Pending", "Incomplete", "Complete"]
 # #########################################################################
-# Generated classes (1)
+# Generated classes (2)
 # #########################################################################
+
+class ChatResponse(BaseModel):
+    query_response: typing.Optional[str] = None
 
 class Command(BaseModel):
     command: typing.Optional[str] = None

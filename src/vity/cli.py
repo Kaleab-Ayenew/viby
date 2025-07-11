@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Optional
 
 from .config import config
-from .llm import generate_command, generate_chat_response, remove_terminal_history_tags, generate_with_local_llm
+from .llm import generate_command, generate_chat_response, remove_terminal_history_tags
 from .schema import Command
 from . import __version__
 
@@ -25,20 +25,27 @@ def setup_config() -> bool:
         print("You can get one at: https://platform.openai.com/api-keys")
         print()
         
-        api_key = input("Enter your OpenAI API key: ").strip()
+        base_url = input("Enter your LLM provider base url: ").strip()
+        api_key = input("Enter your LLM provider API key[Use 'NONE' if not needed]: ").strip()
+        llm_model = input("Enter LLM model name to use: ").strip()
+
         if not api_key:
             print("❌ API key is required")
             return False
+        if not base_url:
+            print("❌ Base URL is required")
+            return False
+        if not llm_model:
+            print("❌ LLM model name is required")
         
         config_dir.mkdir(parents=True, exist_ok=True)
-        config_file.write_text(f"OPENAI_API_KEY={api_key}\n")
+        config_text = f"VITY_LLM_API_KEY={api_key}\nVITY_LLM_MODEL={llm_model}\nVITY_LLM_BASE_URL={base_url}\n"
+        config_file.write_text(config_text)
         
         print("✅ Configuration saved!")
         print(f"Config file: {config_file}")
         print()
         
-        # Set environment variable for this session
-        os.environ["OPENAI_API_KEY"] = api_key
     else:
         print("✅ Configuration already exists")
         print(f"Config file: {config_file}")
@@ -165,7 +172,7 @@ For shell integration, run: vity install
         
         try:
             if args.command == "do":
-                updated_chat_history = generate_with_local_llm(terminal_history, chat_history, user_input)
+                updated_chat_history = generate_command(terminal_history, chat_history, user_input)
 
                 for message in reversed(updated_chat_history):
                     if message["role"] == "user":

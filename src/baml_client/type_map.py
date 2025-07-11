@@ -16,6 +16,9 @@ from . import stream_types
 
 type_map = {
 
+    "types.ChatResponse": types.ChatResponse,
+    "stream_types.ChatResponse": stream_types.ChatResponse,
+
     "types.Command": types.Command,
     "stream_types.Command": stream_types.Command,
 

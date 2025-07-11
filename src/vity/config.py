@@ -1,20 +1,23 @@
 from pydantic_settings import BaseSettings
 from pathlib import Path
-import os
 
 class Config(BaseSettings):
-    openai_api_key: str
-
+    vity_llm_api_key: str
+    vity_llm_base_url: str
+    vity_llm_model: str
     class Config:
         env_file = [
+            f for f in [
             ".env",
             str(Path.home() / ".config" / "vity" / ".env"),
-        ]
+        ] if Path(f).exists()]
         env_file_encoding = "utf-8"
+        
+        
 
 # Try to load config, but don't fail if not found
 try:
     config = Config()
-except Exception:
-    # Will be handled by CLI setup
+except Exception as e:
+    print(e)
     config = None

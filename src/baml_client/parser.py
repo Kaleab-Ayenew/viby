@@ -22,6 +22,12 @@ class LlmResponseParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def GenerateChatResponse(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ChatResponse:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateChatResponse", llm_response=llm_response, mode="request")
+        return typing.cast(types.ChatResponse, result)
+
     def GenerateCommand(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.Command:
@@ -35,6 +41,12 @@ class LlmStreamParser:
 
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
+
+    def GenerateChatResponse(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ChatResponse:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateChatResponse", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ChatResponse, result)
 
     def GenerateCommand(
         self, llm_response: str, baml_options: BamlCallOptions = {},

@@ -73,6 +73,13 @@ class BamlAsyncClient:
     def parse_stream(self):
       return self.__llm_stream_parser
     
+    async def GenerateChatResponse(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> types.ChatResponse:
+        result = await self.__options.merge_options(baml_options).call_function_async(function_name="GenerateChatResponse", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        })
+        return typing.cast(types.ChatResponse, result.cast_to(types, types, stream_types, False, __runtime__))
     async def GenerateCommand(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> types.Command:
@@ -89,6 +96,18 @@ class BamlStreamClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    def GenerateChatResponse(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlStream[stream_types.ChatResponse, types.ChatResponse]:
+        ctx, result = self.__options.merge_options(baml_options).create_async_stream(function_name="GenerateChatResponse", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        })
+        return baml_py.BamlStream[stream_types.ChatResponse, types.ChatResponse](
+          result,
+          lambda x: typing.cast(stream_types.ChatResponse, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ChatResponse, x.cast_to(types, types, stream_types, False, __runtime__)),
+          ctx,
+        )
     def GenerateCommand(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlStream[stream_types.Command, types.Command]:
@@ -109,6 +128,13 @@ class BamlHttpRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    async def GenerateChatResponse(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="GenerateChatResponse", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        }, mode="request")
+        return result
     async def GenerateCommand(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
@@ -124,6 +150,13 @@ class BamlHttpStreamRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
+    async def GenerateChatResponse(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = await self.__options.merge_options(baml_options).create_http_request_async(function_name="GenerateChatResponse", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        }, mode="stream")
+        return result
     async def GenerateCommand(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
