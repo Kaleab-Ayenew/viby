@@ -10,5 +10,5 @@ generator target {
     default_client_mode "sync"
 
     // Version of runtime to generate code for (should match installed baml-py version)
-    version "0.76.2"
+    version "0.201.0"
 }
