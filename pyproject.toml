@@ -60,7 +60,7 @@ Issues = "https://github.com/kaleab-ayenew/vity/issues"
 source = "vcs"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/vity"]
+packages = ["src/vity", "src/baml_client"]
 
 [tool.black]
 line-length = 88
