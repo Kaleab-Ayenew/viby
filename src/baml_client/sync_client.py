@@ -85,17 +85,31 @@ class BamlSyncClient:
     def parse_stream(self):
       return self.__llm_stream_parser
     
-    def GenerateChatResponse(self, terminal_history: str,user_input: str,
+    def GenerateChatResponseGemeni(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> types.ChatResponse:
-        result = self.__options.merge_options(baml_options).call_function_sync(function_name="GenerateChatResponse", args={
+        result = self.__options.merge_options(baml_options).call_function_sync(function_name="GenerateChatResponseGemeni", args={
             "terminal_history": terminal_history,"user_input": user_input,
         })
         return typing.cast(types.ChatResponse, result.cast_to(types, types, stream_types, False, __runtime__))
-    def GenerateCommand(self, terminal_history: str,user_input: str,
+    def GenerateChatResponseOpenAI(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> types.ChatResponse:
+        result = self.__options.merge_options(baml_options).call_function_sync(function_name="GenerateChatResponseOpenAI", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        })
+        return typing.cast(types.ChatResponse, result.cast_to(types, types, stream_types, False, __runtime__))
+    def GenerateCommandGemeni(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> types.Command:
-        result = self.__options.merge_options(baml_options).call_function_sync(function_name="GenerateCommand", args={
+        result = self.__options.merge_options(baml_options).call_function_sync(function_name="GenerateCommandGemeni", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        })
+        return typing.cast(types.Command, result.cast_to(types, types, stream_types, False, __runtime__))
+    def GenerateCommandOpenAI(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> types.Command:
+        result = self.__options.merge_options(baml_options).call_function_sync(function_name="GenerateCommandOpenAI", args={
             "terminal_history": terminal_history,"user_input": user_input,
         })
         return typing.cast(types.Command, result.cast_to(types, types, stream_types, False, __runtime__))
@@ -108,10 +122,10 @@ class BamlStreamClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def GenerateChatResponse(self, terminal_history: str,user_input: str,
+    def GenerateChatResponseGemeni(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlSyncStream[stream_types.ChatResponse, types.ChatResponse]:
-        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="GenerateChatResponse", args={
+        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="GenerateChatResponseGemeni", args={
             "terminal_history": terminal_history,"user_input": user_input,
         })
         return baml_py.BamlSyncStream[stream_types.ChatResponse, types.ChatResponse](
@@ -120,10 +134,34 @@ class BamlStreamClient:
           lambda x: typing.cast(types.ChatResponse, x.cast_to(types, types, stream_types, False, __runtime__)),
           ctx,
         )
-    def GenerateCommand(self, terminal_history: str,user_input: str,
+    def GenerateChatResponseOpenAI(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.ChatResponse, types.ChatResponse]:
+        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="GenerateChatResponseOpenAI", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        })
+        return baml_py.BamlSyncStream[stream_types.ChatResponse, types.ChatResponse](
+          result,
+          lambda x: typing.cast(stream_types.ChatResponse, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.ChatResponse, x.cast_to(types, types, stream_types, False, __runtime__)),
+          ctx,
+        )
+    def GenerateCommandGemeni(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.BamlSyncStream[stream_types.Command, types.Command]:
-        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="GenerateCommand", args={
+        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="GenerateCommandGemeni", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        })
+        return baml_py.BamlSyncStream[stream_types.Command, types.Command](
+          result,
+          lambda x: typing.cast(stream_types.Command, x.cast_to(types, types, stream_types, True, __runtime__)),
+          lambda x: typing.cast(types.Command, x.cast_to(types, types, stream_types, False, __runtime__)),
+          ctx,
+        )
+    def GenerateCommandOpenAI(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.BamlSyncStream[stream_types.Command, types.Command]:
+        ctx, result = self.__options.merge_options(baml_options).create_sync_stream(function_name="GenerateCommandOpenAI", args={
             "terminal_history": terminal_history,"user_input": user_input,
         })
         return baml_py.BamlSyncStream[stream_types.Command, types.Command](
@@ -140,17 +178,31 @@ class BamlHttpRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def GenerateChatResponse(self, terminal_history: str,user_input: str,
+    def GenerateChatResponseGemeni(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
-        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateChatResponse", args={
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateChatResponseGemeni", args={
             "terminal_history": terminal_history,"user_input": user_input,
         }, mode="request")
         return result
-    def GenerateCommand(self, terminal_history: str,user_input: str,
+    def GenerateChatResponseOpenAI(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
-        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateCommand", args={
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateChatResponseOpenAI", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        }, mode="request")
+        return result
+    def GenerateCommandGemeni(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateCommandGemeni", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        }, mode="request")
+        return result
+    def GenerateCommandOpenAI(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateCommandOpenAI", args={
             "terminal_history": terminal_history,"user_input": user_input,
         }, mode="request")
         return result
@@ -162,17 +214,31 @@ class BamlHttpStreamRequestClient:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def GenerateChatResponse(self, terminal_history: str,user_input: str,
+    def GenerateChatResponseGemeni(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
-        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateChatResponse", args={
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateChatResponseGemeni", args={
             "terminal_history": terminal_history,"user_input": user_input,
         }, mode="stream")
         return result
-    def GenerateCommand(self, terminal_history: str,user_input: str,
+    def GenerateChatResponseOpenAI(self, terminal_history: str,user_input: str,
         baml_options: BamlCallOptions = {},
     ) -> baml_py.baml_py.HTTPRequest:
-        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateCommand", args={
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateChatResponseOpenAI", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        }, mode="stream")
+        return result
+    def GenerateCommandGemeni(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateCommandGemeni", args={
+            "terminal_history": terminal_history,"user_input": user_input,
+        }, mode="stream")
+        return result
+    def GenerateCommandOpenAI(self, terminal_history: str,user_input: str,
+        baml_options: BamlCallOptions = {},
+    ) -> baml_py.baml_py.HTTPRequest:
+        result = self.__options.merge_options(baml_options).create_http_request_sync(function_name="GenerateCommandOpenAI", args={
             "terminal_history": terminal_history,"user_input": user_input,
         }, mode="stream")
         return result

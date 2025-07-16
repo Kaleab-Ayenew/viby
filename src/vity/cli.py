@@ -7,11 +7,8 @@ import os
 import argparse
 import json
 from pathlib import Path
-from typing import Optional
 
-from .config import config
 from .llm import generate_command, generate_chat_response, remove_terminal_history_tags
-from .schema import Command
 from . import __version__
 
 
@@ -34,6 +31,7 @@ def setup_config() -> bool:
         base_url = input("Enter your LLM provider base url: ").strip()
         api_key = input("Enter your LLM provider API key[Use 'NONE' if not needed]: ").strip()
         llm_model = input("Enter LLM model name to use: ").strip()
+        terminal_history_limit = input("How many lines of terminal history do you wanna send to the LLM[Leave empty for default: last 1000 lines]: ").strip()
 
         if not api_key:
             print("❌ API key is required")
@@ -43,9 +41,11 @@ def setup_config() -> bool:
             return False
         if not llm_model:
             print("❌ LLM model name is required")
+        if not terminal_history_limit:
+            terminal_history_limit = "1000"
         
         config_dir.mkdir(parents=True, exist_ok=True)
-        config_text = f"VITY_LLM_API_KEY={api_key}\nVITY_LLM_MODEL={llm_model}\nVITY_LLM_BASE_URL={base_url}\n"
+        config_text = f"VITY_LLM_API_KEY={api_key}\nVITY_LLM_MODEL={llm_model}\nVITY_LLM_BASE_URL={base_url}\nVITY_TERMINAL_HISTORY_LIMIT={terminal_history_limit}"
         config_file.write_text(config_text)
         
         print("✅ Configuration saved!")
@@ -74,6 +74,7 @@ Examples:
   vity -f session.log -c chat.json do "help with this error"
   vity config --reset
   vity reinstall
+  vity uninstall
   
 For shell integration, run: vity install
         """
@@ -113,6 +114,10 @@ For shell integration, run: vity install
     # Reinstall command
     reinstall_parser = subparsers.add_parser("reinstall", help="Reinstall shell integration")
     
+    # Uninstall command
+    uninstall_parser = subparsers.add_parser("uninstall", help="Uninstall vity completely")
+    uninstall_parser.add_argument("--force", action="store_true", help="Skip confirmation prompts")
+    
     # Config command
     config_parser = subparsers.add_parser("config", help="Manage configuration")
     config_parser.add_argument("--reset", action="store_true", help="Reset configuration")
@@ -127,6 +132,10 @@ For shell integration, run: vity install
     
     if args.command == "reinstall":
         reinstall_shell_integration()
+        return
+    
+    if args.command == "uninstall":
+        uninstall_shell_integration(args.force)
         return
     
     if args.command == "config":
@@ -150,6 +159,11 @@ For shell integration, run: vity install
         return
     
     if args.command in ["do", "chat"]:
+        from vity.config import config
+        if "googleapis" in config.vity_llm_base_url:
+            provider = "google"
+        else:
+            provider = "openai"
         user_input = " ".join(args.prompt)
         
         # Load terminal history if provided
@@ -178,7 +192,8 @@ For shell integration, run: vity install
         
         try:
             if args.command == "do":
-                updated_chat_history = generate_command(terminal_history, chat_history, user_input)
+                
+                updated_chat_history = generate_command(terminal_history, chat_history, user_input, provider)
 
                 for message in reversed(updated_chat_history):
                     if message["role"] == "user":
@@ -216,7 +231,7 @@ For shell integration, run: vity install
                         json.dump(updated_chat_history, f, indent=2)
                 
             elif args.command == "chat":
-                updated_chat_history = generate_chat_response(terminal_history, chat_history, user_input)
+                updated_chat_history = generate_chat_response(terminal_history, chat_history, user_input, provider)
 
                 for message in reversed(updated_chat_history):
                     if message["role"] == "user":
@@ -297,7 +312,7 @@ vity() {
         fi
         
     # Forward commands that should be handled directly by the Python CLI
-    elif [[ "$1" == "install" || "$1" == "reinstall" || "$1" == "config" ]]; then
+    elif [[ "$1" == "install" || "$1" == "reinstall" || "$1" == "config" || "$1" == "uninstall" ]]; then
         # Call the underlying vity executable with the provided arguments unchanged
         command vity "$@"
         
@@ -317,6 +332,7 @@ COMMANDS:
     config --reset   Reset configuration (always available)
     install          Install shell integration (always available)
     reinstall        Reinstall shell integration (always available)
+    uninstall        Completely remove vity and all data
     help             Show this help message
 
 EXAMPLES:
@@ -355,6 +371,7 @@ EOF
         echo "  config --reset   Reset configuration"
         echo "  install          Install shell integration"
         echo "  reinstall        Reinstall shell integration"
+        echo "  uninstall        Completely remove vity and all data"
         echo "  help             Show detailed help"
         echo ""
         echo "Run 'vity help' for more details and examples."
@@ -414,6 +431,137 @@ def reinstall_shell_integration():
     print("✨ Installing fresh shell integration...")
     install_shell_integration()
 
+
+def uninstall_shell_integration(force: bool = False):
+    """Completely uninstall vity and clean up all data"""
+    print("🗑️  Vity Uninstaller")
+    print()
+    
+    if not force:
+        print("This will remove:")
+        print("• Shell integration from ~/.bashrc")
+        print("• Configuration files (~/.config/vity/)")
+        print("• Log files (~/.local/share/vity/)")
+        print("• Chat history files")
+        print("• Vity-generated bash history entries")
+        print("• Vity package itself")
+        print()
+        
+        confirm = input("Are you sure you want to uninstall vity? (y/N): ").strip().lower()
+        if confirm not in ['y', 'yes']:
+            print("❌ Uninstall cancelled")
+            return
+    
+    # 1. Remove shell integration
+    remove_shell_integration()
+    
+    # 2. Remove configuration
+    remove_configuration()
+    
+    # 3. Remove logs and chat data
+    remove_data_files()
+    
+    # 4. Clean bash history
+    clean_bash_history()
+    
+    # 5. Remove package (this needs to be last)
+    remove_package()
+    
+    print("✅ Vity has been completely uninstalled!")
+    print("Please restart your terminal for changes to take effect.")
+
+
+def remove_shell_integration():
+    """Remove vity function from ~/.bashrc"""
+    bashrc = Path.home() / ".bashrc"
+    
+    if not bashrc.exists():
+        print("ℹ️  ~/.bashrc not found, skipping shell integration removal")
+        return
+    
+    content = bashrc.read_text()
+    
+    if "# Vity shell integration" not in content:
+        print("ℹ️  Shell integration not found in ~/.bashrc")
+        return
+    
+    # Remove the entire vity function
+    lines = content.split('\n')
+    new_lines = []
+    in_vity_section = False
+    
+    for line in lines:
+        if line.strip() == "# Vity shell integration":
+            in_vity_section = True
+            print("🗑️  Removing shell integration from ~/.bashrc")
+            continue
+        elif in_vity_section and line.strip() == "}":
+            in_vity_section = False
+            continue
+        elif not in_vity_section:
+            new_lines.append(line)
+    
+    bashrc.write_text('\n'.join(new_lines))
+    print("✅ Shell integration removed")
+
+
+def remove_configuration():
+    """Remove configuration directory and files"""
+    config_dir = Path.home() / ".config" / "vity"
+    
+    if config_dir.exists():
+        import shutil
+        shutil.rmtree(config_dir)
+        print("✅ Configuration files removed")
+    else:
+        print("ℹ️  No configuration files found")
+
+
+def remove_data_files():
+    """Remove logs and chat data"""
+    data_dir = Path.home() / ".local" / "share" / "vity"
+    
+    if data_dir.exists():
+        import shutil
+        shutil.rmtree(data_dir)
+        print("✅ Log and chat files removed")
+    else:
+        print("ℹ️  No data files found")
+
+
+def clean_bash_history():
+    """Remove vity-generated commands from bash history"""
+    history_file = Path.home() / ".bash_history"
+    
+    if not history_file.exists():
+        print("ℹ️  ~/.bash_history not found")
+        return
+    
+    try:
+        lines = history_file.read_text().splitlines()
+        original_count = len(lines)
+        cleaned_lines = [line for line in lines if not line.endswith("# Vity generated")]
+        removed_count = original_count - len(cleaned_lines)
+        
+        if removed_count > 0:
+            history_file.write_text('\n'.join(cleaned_lines) + '\n')
+            print(f"✅ Cleaned {removed_count} vity entries from bash history")
+        else:
+            print("ℹ️  No vity entries found in bash history")
+    except Exception as e:
+        print(f"⚠️  Could not clean bash history: {e}")
+
+
+def remove_package():
+    """Remove the vity package itself"""
+    print("🗑️  Removing vity package...")
+    print()
+    print("To complete the uninstall, run one of these commands:")
+    print("• If installed with pipx: pipx uninstall vity")
+    print("• If installed with pip: pip uninstall vity")
+    print()
+    print("Note: The package removal step is not automated to avoid")
+    print("breaking the currently running uninstall process.")
 
 
 def reset_config():

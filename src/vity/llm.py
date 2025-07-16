@@ -1,9 +1,6 @@
-from openai import OpenAI
 from baml_client.sync_client import b
-from baml_client.types import Command as BamlCommand
-from .config import config
-from .schema import Command
-from . import prompts
+from vity.config import config
+from vity import sanitizor
 from typing import Optional
 import os
 import re
@@ -34,7 +31,8 @@ def load_configs():
     
     os.environ['BAML_BASE_URL'] = config.vity_llm_base_url
     os.environ['BAML_MODEL'] = config.vity_llm_model
-    if not config.vity_llm_api_key and config.vity_llm_api_key != 'NONE':
+    os.environ['BAML_LOG'] = 'error'
+    if config.vity_llm_api_key and config.vity_llm_api_key != 'NONE':
         os.environ['BAML_API_KEY'] = config.vity_llm_api_key
     else:
         os.environ['BAML_API_KEY'] = ""
@@ -54,8 +52,9 @@ def remove_terminal_history_tags(text: str) -> str:
 
 
 
-def generate_command(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> list:
+def generate_command(terminal_history: Optional[str], chat_history: Optional[list], user_input: str, provider: str = "openai") -> list:
     load_configs()   
+    sanitized_history = sanitizor.get_last_x_lines(sanitizor.sanitize_raw_log(terminal_history), config.vity_terminal_history_limit)
     messages = []
     if chat_history:
         messages.extend(chat_history)
@@ -72,7 +71,12 @@ def generate_command(terminal_history: Optional[str], chat_history: Optional[lis
     )
     
 
-    response = b.GenerateCommand(terminal_history, user_input)
+    if provider == "google":
+        response = b.GenerateCommandGemeni(sanitized_history, user_input)
+    elif provider == "openai":
+        response = b.GenerateCommandOpenAI(sanitized_history, user_input)
+    else:
+        raise ValueError(f"Unknown provider was passed: {provider} ")
 
     messages.append(
         {
@@ -87,8 +91,9 @@ def generate_command(terminal_history: Optional[str], chat_history: Optional[lis
     )
     return messages
 
-def generate_chat_response(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> list:
+def generate_chat_response(terminal_history: Optional[str], chat_history: Optional[list], user_input: str, provider: str = "openai") -> list:
     load_configs()   
+    sanitized_history = sanitizor.get_last_x_lines(sanitizor.sanitize_raw_log(terminal_history), config.vity_terminal_history_limit)
     messages = []
     if chat_history:
         messages.extend(chat_history)
@@ -104,8 +109,12 @@ def generate_chat_response(terminal_history: Optional[str], chat_history: Option
         }
     )
     
-
-    response = b.GenerateChatResponse(terminal_history, user_input)
+    if provider == "google":
+        response = b.GenerateChatResponseGemeni(sanitized_history, user_input)
+    elif provider == "openai":
+        response = b.GenerateChatResponseOpenAI(sanitized_history, user_input)
+    else:
+        raise ValueError(f"Unknown provider was passed: {provider} ")
 
     messages.append(
         {
@@ -119,125 +128,3 @@ def generate_chat_response(terminal_history: Optional[str], chat_history: Option
         }
     )
     return messages
-
-# def generate_command(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> list:
-#     client = get_client()
-
-#     user_prompt = []
-#     if terminal_history:
-#         user_prompt.append(f"<terminal_history>{terminal_history}</terminal_history>")
-#     user_prompt.append(f"<user_request>{user_input}</user_request>")
-    
-    
-#     # Build OpenAI message list dynamically
-#     messages = [
-#             {
-#                 "role": "system",
-#                 "content": [
-#                     {
-#                         "type": "input_text",
-#                         "text": prompts.COMMAND_SYSTEM_PROMPT
-#                     }
-#                 ]
-#             }
-#         ]
-
-#     # Only add terminal history if we have it
-#     if chat_history:
-#         messages.extend(chat_history)
-
-#     # Always add the user's query
-#     messages.append(
-#         {
-#             "role": "user",
-#             "content": [
-#                 {
-#                     "type": "input_text",
-#                     "text": "\n\n".join(user_prompt)
-#                 }
-#             ]
-#         }
-#     )
-#     response = client.responses.parse(
-#         model="gpt-4.1-mini",
-#         input=messages,  # {{ Use the dynamic messages instead of hardcoded array }}
-#         text_format=Command,
-#         temperature=0,
-#         max_output_tokens=2048,
-#         top_p=1,
-#         store=True
-#     )
-
-
-#     messages.append(
-#         {
-#             "role": "assistant",
-#             "content": [
-#                 {
-#                     "type": "output_text",
-#                     "text": f"{response.output_parsed.command} # {response.output_parsed.comment} * vity generated command"
-#                 }
-#             ]
-#         }
-#     )
-
-
-#     return messages[1:]
-
-# def generate_chat_response(terminal_history: Optional[str], chat_history: Optional[list], user_input: str) -> list:
-    
-#     messages = [
-#             {
-#                 "role": "system",
-#                 "content": [
-#                     {
-#                         "type": "input_text",
-#                         "text": prompts.CHAT_SYSTEM_PROMPT
-#                     }
-#                 ]
-#             }
-#         ]
-    
-#     user_prompt = []
-#     if terminal_history:
-#         user_prompt.append(f"<terminal_history>{terminal_history}</terminal_history>")
-#     user_prompt.append(f"<user_request>{user_input}</user_request>")
-
-#     # Only add terminal history if we have it
-#     if chat_history:
-#         messages.extend(chat_history)
-
-#     # Always add the user's query
-#     messages.append(
-#         {
-#             "role": "user",
-#             "content": [
-#                 {
-#                     "type": "input_text",
-#                     "text": "\n\n".join(user_prompt)
-#                 }
-#             ]
-#         }
-#     )
-
-#     response = client.responses.create(
-#         model="gpt-4.1-mini",
-#         input=messages,
-#         temperature=0,
-#         max_output_tokens=2048,
-#         top_p=1,
-#     )
-#     messages.append(
-#         {
-#             "role": "assistant",
-#             "content": [
-#                 {
-#                     "type": "output_text",
-#                     "text": response.output_text
-#                 }
-#             ]
-#         }
-#     )
-
-
-#     return messages[1:]

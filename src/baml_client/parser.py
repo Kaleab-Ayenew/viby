@@ -22,16 +22,28 @@ class LlmResponseParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def GenerateChatResponse(
+    def GenerateChatResponseGemeni(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.ChatResponse:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateChatResponse", llm_response=llm_response, mode="request")
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateChatResponseGemeni", llm_response=llm_response, mode="request")
         return typing.cast(types.ChatResponse, result)
 
-    def GenerateCommand(
+    def GenerateChatResponseOpenAI(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.ChatResponse:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateChatResponseOpenAI", llm_response=llm_response, mode="request")
+        return typing.cast(types.ChatResponse, result)
+
+    def GenerateCommandGemeni(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> types.Command:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateCommand", llm_response=llm_response, mode="request")
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateCommandGemeni", llm_response=llm_response, mode="request")
+        return typing.cast(types.Command, result)
+
+    def GenerateCommandOpenAI(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> types.Command:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateCommandOpenAI", llm_response=llm_response, mode="request")
         return typing.cast(types.Command, result)
 
     
@@ -42,16 +54,28 @@ class LlmStreamParser:
     def __init__(self, options: DoNotUseDirectlyCallManager):
         self.__options = options
 
-    def GenerateChatResponse(
+    def GenerateChatResponseGemeni(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> stream_types.ChatResponse:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateChatResponse", llm_response=llm_response, mode="stream")
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateChatResponseGemeni", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.ChatResponse, result)
 
-    def GenerateCommand(
+    def GenerateChatResponseOpenAI(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.ChatResponse:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateChatResponseOpenAI", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.ChatResponse, result)
+
+    def GenerateCommandGemeni(
         self, llm_response: str, baml_options: BamlCallOptions = {},
     ) -> stream_types.Command:
-        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateCommand", llm_response=llm_response, mode="stream")
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateCommandGemeni", llm_response=llm_response, mode="stream")
+        return typing.cast(stream_types.Command, result)
+
+    def GenerateCommandOpenAI(
+        self, llm_response: str, baml_options: BamlCallOptions = {},
+    ) -> stream_types.Command:
+        result = self.__options.merge_options(baml_options).parse_response(function_name="GenerateCommandOpenAI", llm_response=llm_response, mode="stream")
         return typing.cast(stream_types.Command, result)
 
     

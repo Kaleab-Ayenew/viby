@@ -5,6 +5,7 @@ class Config(BaseSettings):
     vity_llm_api_key: str
     vity_llm_base_url: str
     vity_llm_model: str
+    vity_terminal_history_limit: int  = 1000
     class Config:
         env_file = [
             f for f in [

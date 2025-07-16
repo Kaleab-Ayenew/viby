@@ -158,3 +158,4 @@ printf "3. Try: vity do 'find all python files'\n"
 fi
 printf "\n"
 printf "For help: vity --help\n"
+printf "To uninstall later: vity uninstall\n"
