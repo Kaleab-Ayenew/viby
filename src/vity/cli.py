@@ -152,6 +152,7 @@ For shell integration, run: vity install
     # Setup config if needed (for other commands)
     if not check_config():
         setup_config()
+        return
     
     # Handle main commands
     if not args.command:
